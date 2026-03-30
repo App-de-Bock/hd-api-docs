@@ -1,0 +1,69 @@
+---
+title: "Error Codes"
+description: "Complete reference of all machine-readable error codes."
+---
+
+Always use the `errorCode` field for programmatic error handling. The `message` field is human-readable and may change without notice.
+
+```json
+{
+  "success": false,
+  "errorCode": "INVALID_BIRTHDATE",
+  "message": "Birthdate must be in YYYY-MM-DD format"
+}
+```
+
+## Authentication Errors
+
+| Error Code | HTTP Status | Description | Action |
+| --- | --- | --- | --- |
+| `API_KEY_MISSING` | 401 | No `Authorization` header provided | Add `Authorization: Bearer YOUR_KEY` header |
+| `API_KEY_INVALID` | 401 | API key not found or deactivated | Check your key in the dashboard |
+| `GEOCODE_KEY_MISSING` | 401 | No `HD-Geocode-Key` header on a location-based endpoint | Add the header, or use the [coordinates endpoint](/guides/coordinates-endpoint) |
+| `UNAUTHORIZED` | 401 | General authentication failure | Verify your credentials |
+
+## Authorization Errors
+
+| Error Code | HTTP Status | Description | Action |
+| --- | --- | --- | --- |
+| `ACCESS_DENIED` | 403 | Your plan does not include this endpoint | Upgrade to a plan with the required [access tier](/authentication#access-tiers) |
+| `ACCOUNT_INACTIVE` | 403 | Account has been deactivated | Contact [support](mailto:info@mail.humandesignapi.nl) |
+
+## Billing Errors
+
+| Error Code | HTTP Status | Description | Action |
+| --- | --- | --- | --- |
+| `CREDITS_EXHAUSTED` | 402 | No credits remaining and overage is disabled | Wait for monthly reset, enable overage, or upgrade your plan |
+
+## Validation Errors
+
+| Error Code | HTTP Status | Description | Action |
+| --- | --- | --- | --- |
+| `INVALID_BIRTHDATE` | 400 | Birthdate is missing or not in `YYYY-MM-DD` format | Use ISO 8601 format: `"1990-01-15"` |
+| `INVALID_BIRTHTIME` | 400 | Birthtime is missing or not in `HH:MM` format | Use 24-hour format: `"14:30"` |
+| `INVALID_LOCATION` | 400 | Location is empty or shorter than 4 characters | Provide a valid location: `"Amsterdam, The Netherlands"` |
+| `INVALID_LATITUDE` | 400 | Latitude is missing, not a number, or outside -90 to 90 | Provide a valid latitude: `52.3676` |
+| `INVALID_LONGITUDE` | 400 | Longitude is missing, not a number, or outside -180 to 180 | Provide a valid longitude: `4.9041` |
+| `MISSING_REQUIRED_FIELD` | 400 | A required field is missing from the request body | Check the endpoint documentation for required fields |
+| `INVALID_REQUEST_BODY` | 422 | Request body is malformed or has structural errors | Ensure valid JSON with correct field types |
+
+## Service Errors
+
+| Error Code | HTTP Status | Description | Action |
+| --- | --- | --- | --- |
+| `GEOCODE_FAILED` | 400 | Google Geocoding service returned an error | Check your geocoding key and try again |
+| `GEOCODE_KEY_INVALID` | 400 | Google Geocoding API key is invalid or restricted | Verify your key in Google Cloud Console |
+| `GEOCODE_LOCATION_NOT_FOUND` | 400 | Location could not be geocoded | Check spelling, try a more specific location, or use [coordinates](/guides/coordinates-endpoint) |
+| `GEOCODE_RATE_LIMITED` | 429 | Google Geocoding rate limit exceeded | Wait and retry, or use the [coordinates endpoint](/guides/coordinates-endpoint) |
+| `TIMEZONE_LOOKUP_FAILED` | 500 | Could not determine timezone for the location | Try a nearby major city, or use coordinates with a known timezone |
+| `EPHEMERIS_ERROR` | 500 | Astronomical calculation failed | Contact [support](mailto:info@mail.humandesignapi.nl) if this persists |
+| `CHART_GENERATION_FAILED` | 500 | Chart generation failed unexpectedly | Contact [support](mailto:info@mail.humandesignapi.nl) if this persists |
+| `INTERNAL_ERROR` | 500 | Unexpected server error | Contact [support](mailto:info@mail.humandesignapi.nl) if this persists |
+
+## Rate Limiting
+
+| Error Code | HTTP Status | Description | Action |
+| --- | --- | --- | --- |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests | Wait for the `Retry-After` header value (in seconds) before retrying |
+
+See [Rate Limiting](/guides/rate-limiting) for limit details.

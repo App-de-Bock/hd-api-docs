@@ -1,0 +1,105 @@
+---
+title: "Error Handling"
+description: "How to handle errors from the Human Design API."
+---
+
+All v2 error responses use the same [response envelope](/response-format) as success responses. This makes error handling consistent and predictable.
+
+## Basic Pattern
+
+```json
+{
+  "timestamp": "2026-03-24T12:00:01.000Z",
+  "success": false,
+  "message": "Birthdate must be in YYYY-MM-DD format",
+  "errorCode": "INVALID_BIRTHDATE",
+  "type": "",
+  "data": null
+}
+```
+
+1. **Check `success`** — if `false`, the request failed
+2. **Read `errorCode`** — use this for programmatic logic
+3. **Never parse `message`** — it is human-readable and may change without notice
+
+<CodeGroup>
+```javascript JavaScript
+const response = await fetch("https://api.humandesignapi.nl/v2/charts/simple", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY",
+    "HD-Geocode-Key": "YOUR_GEOCODE_KEY",
+  },
+  body: JSON.stringify({ birthdate: "1990-01-15", birthtime: "14:30", location: "Amsterdam" }),
+});
+
+const result = await response.json();
+
+if (!result.success) {
+  switch (result.errorCode) {
+    case "CREDITS_EXHAUSTED":
+      // Prompt user to upgrade or wait for reset
+      break;
+    case "RATE_LIMIT_EXCEEDED":
+      // Wait and retry after Retry-After header
+      break;
+    case "API_KEY_INVALID":
+      // Re-authenticate
+      break;
+    default:
+      console.error(`API error: ${result.errorCode} — ${result.message}`);
+  }
+}
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.humandesignapi.nl/v2/charts/simple",
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_API_KEY",
+        "HD-Geocode-Key": "YOUR_GEOCODE_KEY",
+    },
+    json={"birthdate": "1990-01-15", "birthtime": "14:30", "location": "Amsterdam"},
+)
+
+result = response.json()
+
+if not result["success"]:
+    error_code = result["errorCode"]
+    if error_code == "CREDITS_EXHAUSTED":
+        # Prompt user to upgrade or wait for reset
+        pass
+    elif error_code == "RATE_LIMIT_EXCEEDED":
+        retry_after = response.headers.get("Retry-After", 60)
+        # Wait retry_after seconds before retrying
+        pass
+    else:
+        print(f"API error: {error_code} — {result['message']}")
+```
+</CodeGroup>
+
+## HTTP Status Categories
+
+| Status | Meaning | Retry? |
+| --- | --- | --- |
+| **400** | Validation error (bad input) | No — fix the request |
+| **401** | Authentication failure | No — check your API key |
+| **402** | Credits exhausted | No — wait for reset, enable overage, or upgrade |
+| **403** | Access denied (wrong tier or inactive) | No — upgrade plan or contact support |
+| **429** | Rate limit exceeded | Yes — wait for `Retry-After` seconds |
+| **500** | Server error | Yes — retry with backoff, contact support if persistent |
+
+## Retry Strategy
+
+- **Only retry** `429` and `500` errors
+- **Never retry** `400`, `401`, `402`, or `403` — these require a change in the request or account
+- For `429`, use the `Retry-After` response header (value in seconds)
+- For `500`, use exponential backoff (1s, 2s, 4s, max 3 retries)
+
+## Full Error Code Reference
+
+See [Error Codes](/api-reference/error-codes) for the complete list of all error codes with descriptions and recommended actions.

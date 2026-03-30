@@ -1,0 +1,49 @@
+---
+title: "Rate Limiting"
+description: "Understand rate limits and how to handle them."
+---
+
+Rate limits protect the API from abuse and ensure fair usage for all consumers.
+
+## Limits
+
+| Scope                                    | Limit            | Key         |
+| ---------------------------------------- | ---------------- | ----------- |
+| **Authenticated API** (`/v1/*`, `/v2/*`) | 100 requests/min | Per API key |
+
+## Response When Limited
+
+When you exceed a rate limit, the API returns:
+
+- **HTTP 429** Too Many Requests
+- **Error code**: `RATE_LIMIT_EXCEEDED`
+- **`Retry-After` header**: number of seconds to wait before retrying
+
+```json
+{
+  "timestamp": "2026-03-24T12:00:00.000Z",
+  "success": false,
+  "message": "Too many requests. Please try again later.",
+  "errorCode": "RATE_LIMIT_EXCEEDED",
+  "type": "",
+  "data": null
+}
+```
+
+## Rate Limit Headers
+
+Every response includes standard rate limit headers per the [IETF RateLimit header fields](https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/) specification:
+
+| Header             | Description                                                       | Example                            |
+| ------------------ | ----------------------------------------------------------------- | ---------------------------------- |
+| `RateLimit-Policy` | Rate limit policy: max requests and window size in seconds        | `60;w=60`                          |
+| `RateLimit`        | Current state: limit, remaining requests, and seconds until reset | `limit=60, remaining=45, reset=30` |
+| `Retry-After`      | Seconds to wait before retrying (**only on 429 responses**)       | `30`                               |
+
+## Best Practices
+
+1. **Respect `Retry-After`** — when you receive a 429, wait for the specified number of seconds
+2. **Monitor rate limit headers** — parse the `RateLimit` header to check remaining requests and throttle proactively
+3. **Use exponential backoff** — if retrying, increase delay: 1s, 2s, 4s
+4. **Cache results** — Human Design charts for the same birth data are deterministic. Cache responses to avoid redundant calls
+5. **Batch wisely** — if generating multiple charts, space requests evenly rather than bursting

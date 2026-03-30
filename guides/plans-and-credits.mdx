@@ -1,0 +1,51 @@
+---
+title: "Plans & Credits"
+description: "Understand API plans, credit allocation, and usage tracking."
+---
+
+Every API call costs 1 credit. Your plan determines how many credits you get each month and which endpoints you can access.
+
+## Plans
+
+| Plan | Access Tier | Monthly Credits | Annual Credits/mo | Rollover Cap | Overage Rate (per 1,000) | Monthly Price | Annual Price | Lifetime Price |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Hobbyist** | Basic | 5,000 | 6,000 | 10,000 | &euro;0.50 | &euro;22.50 | &euro;225 | — |
+| **Developer** | Advanced | 10,000 | 12,000 | 20,000 | &euro;0.50 | &euro;35 | &euro;350 | — |
+| **Scale** | Advanced | 50,000 | 60,000 | 100,000 | &euro;0.10 | &euro;47.50 | &euro;475 | — |
+| **Lifetime** | Advanced | 100,000 | — | 200,000 | &euro;0.05 | — | — | &euro;1,200 |
+
+## Access Tiers
+
+| Tier | Available Endpoints |
+| --- | --- |
+| **Basic** | `/v2/charts/simple`, `/v1/bodygraphs/simple` |
+| **Advanced** | All endpoints, including `/v2/charts`, `/v2/charts/coordinates`, `/v1/bodygraphs` |
+
+## Credit System
+
+### Monthly Allocation
+
+Credits reset monthly. Annual plans receive 20% more credits per month than the equivalent monthly plan.
+
+### Rollover
+
+Unused credits roll over to the next month, up to your plan's rollover cap. Any excess beyond the cap is lost at reset.
+
+**Example**: Developer plan (10,000/month, 20,000 cap). You use 7,000 credits in March, leaving 3,000 unused. In April you start with 13,000 credits (10,000 new + 3,000 rolled over). If you had 15,000 unused, only 10,000 would roll over (capped at 20,000 total).
+
+### Overage
+
+Overage is **disabled by default**. When enabled:
+
+- Requests beyond your credit limit succeed and are billed at your plan's overage rate per 1,000 API calls
+- Overage charges appear on your next invoice via Stripe
+
+When disabled, requests beyond your credit limit return `402` with error code [`CREDITS_EXHAUSTED`](/api-reference/error-codes#billing-errors).
+
+You can enable or disable overage from your [account settings](https://humandesignapi.nl/dashboard/account).
+
+### Cancellation
+
+When you cancel a subscription:
+- Your plan remains active until the end of the current billing period
+- At the end of the period, credits expire to 0 and no new credits are allocated

@@ -1,0 +1,71 @@
+---
+title: "v1 API Overview (Legacy)"
+description: "Overview of the legacy v1 Bodygraph API."
+---
+
+<Warning>
+  v1 is supported but no longer recommended for new integrations. Use the [v2 API](/api-reference/v2/overview) instead. See the [migration guide](/migration/v1-to-v2) for upgrade instructions.
+</Warning>
+
+## Base URL
+
+```
+https://api.humandesignapi.nl/v1
+```
+
+## Authentication
+
+v1 uses two custom headers (not Bearer token):
+
+```
+HD-Api-Key: YOUR_API_KEY
+HD-Geocode-Key: YOUR_GEOCODE_KEY
+```
+
+Both are required for all v1 endpoints.
+
+## Endpoints
+
+| Endpoint | Description | Access Tier |
+| --- | --- | --- |
+| `POST /v1/bodygraphs` | Full bodygraph with all properties | Advanced |
+| `POST /v1/bodygraphs/simple` | Simplified bodygraph (type, profile, gates, channels, centers) | Basic + Advanced |
+
+## Request Format
+
+| Field | Type | Format | Example |
+| --- | --- | --- | --- |
+| `birthdate` | string | `DD-MMM-YY` | `"15-Jan-90"` |
+| `birthtime` | string | `HH:MM` (24h) | `"14:30"` |
+| `location` | string | City, Country (min 4 chars) | `"Amsterdam, The Netherlands"` |
+
+<Note>
+  v1 uses `DD-MMM-YY` date format (e.g., `"15-Jan-90"`). v2 uses ISO 8601 `YYYY-MM-DD` format.
+</Note>
+
+## Response Format
+
+v1 returns chart data as a flat JSON object without a response envelope. Field names use `snake_case`:
+
+```json
+{
+  "type": "Generator",
+  "profile": "6/2",
+  "channels_short": ["20-34", "10-57"],
+  "centers": ["G", "Sacral", "Spleen", "Throat"],
+  "strategy": "To Respond",
+  "authority": "Sacral",
+  "incarnation_cross": "Right Angle Cross of Tension (39/38 | 51/57)"
+}
+```
+
+## Key Differences from v2
+
+| Aspect | v1 | v2 |
+| --- | --- | --- |
+| Auth header | `HD-Api-Key` | `Authorization: Bearer` |
+| Date format | `DD-MMM-YY` | `YYYY-MM-DD` |
+| Response | Flat JSON object | Standard envelope with `data` field |
+| Field naming | `snake_case` | `camelCase` |
+| Error codes | Limited | Comprehensive, machine-readable |
+| Coordinates endpoint | Not available | Available |

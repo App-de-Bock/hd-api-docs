@@ -1,0 +1,120 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Human Design API",
+  "colors": {
+    "primary": "#6F00FF",
+    "light": "#AB4AFF",
+    "dark": "#5B00D6"
+  },
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png",
+    "href": "https://humandesignapi.nl"
+  },
+  "favicon": "/logo/favicon.svg",
+  "appearance": { "default": "system" },
+  "background": { "decoration": "gradient" },
+  "navbar": {
+    "links": [
+      { "label": "Website", "href": "https://humandesignapi.nl" },
+      { "label": "Dashboard", "href": "https://humandesignapi.nl/dashboard" }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get API Key",
+      "href": "https://humandesignapi.nl/dashboard"
+    }
+  },
+  "footer": {
+    "socials": { "website": "https://humandesignapi.nl" },
+    "links": [
+      {
+        "header": "Resources",
+        "items": [
+          { "label": "Website", "href": "https://humandesignapi.nl" },
+          {
+            "label": "Dashboard",
+            "href": "https://humandesignapi.nl/dashboard"
+          }
+        ]
+      },
+      {
+        "header": "Legal",
+        "items": [
+          {
+            "label": "Privacy Policy",
+            "href": "https://humandesignapi.nl/privacy-policy"
+          },
+          {
+            "label": "Terms of Service",
+            "href": "https://humandesignapi.nl/tos"
+          }
+        ]
+      }
+    ]
+  },
+  "openapi": ["/openapi/v2-routes.yaml", "/openapi/v1-routes.yaml"],
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication",
+              "response-format"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/plans-and-credits",
+              "guides/agentic-tools",
+              "guides/error-handling",
+              "guides/rate-limiting",
+              "guides/coordinates-endpoint"
+            ]
+          },
+          {
+            "group": "Migration",
+            "pages": ["migration/v1-to-v2"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "v2 Endpoints (Recommended)",
+            "openapi": "/openapi/v2-routes.yaml",
+            "pages": [
+              "api-reference/v2/overview",
+              "POST /charts",
+              "POST /charts/simple",
+              "POST /charts/coordinates"
+            ]
+          },
+          {
+            "group": "v1 Endpoints (Legacy)",
+            "openapi": "/openapi/v1-routes.yaml",
+            "pages": [
+              "api-reference/v1/overview",
+              "POST /bodygraphs",
+              "POST /bodygraphs/simple"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "api-reference/error-codes"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

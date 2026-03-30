@@ -1,0 +1,83 @@
+---
+title: "Using Coordinates Instead of Location"
+description: "Generate charts from latitude and longitude without a geocoding key."
+---
+
+The coordinates endpoint (`POST /v2/charts/coordinates`) generates a full Human Design chart from latitude and longitude. No Google Geocoding API key required.
+
+## Why Use Coordinates
+
+- **No geocoding key needed** — one less API key to manage
+- **Full control** — use your own geocoding service or pre-resolved coordinates
+- **Ideal for agents** — if your AI agent already has lat/lng from a prior step, skip geocoding entirely
+- **No geocoding rate limits** — avoid `GEOCODE_RATE_LIMITED` errors
+
+## Request Format
+
+```bash
+curl -X POST https://api.humandesignapi.nl/v2/charts/coordinates \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "birthdate": "1990-01-15",
+    "birthtime": "14:30",
+    "lat": 52.3676,
+    "lng": 4.9041
+  }'
+```
+
+| Field | Type | Constraints | Example |
+| --- | --- | --- | --- |
+| `birthdate` | string | `YYYY-MM-DD` | `"1990-01-15"` |
+| `birthtime` | string | `HH:MM` (24h) | `"14:30"` |
+| `lat` | number | -90 to 90 | `52.3676` |
+| `lng` | number | -180 to 180 | `4.9041` |
+
+## How It Works
+
+The API resolves the timezone directly from the coordinates using geographic timezone lookup, then calculates the chart. No external geocoding call is made.
+
+## Response
+
+Returns the same full [`ChartResult`](/response-format#data-types) as `POST /v2/charts`:
+
+```json
+{
+  "timestamp": "2026-03-24T12:00:00.000Z",
+  "success": true,
+  "message": "Chart generated",
+  "errorCode": "",
+  "type": "ChartResult",
+  "data": {
+    "type": "Generator",
+    "profile": "6/2",
+    "channelsShort": ["20-34", "10-57"],
+    "centers": ["G", "Sacral", "Spleen", "Throat"],
+    "strategy": "To Respond",
+    "authority": "Sacral",
+    "incarnationCross": "Right Angle Cross of Tension (39/38 | 51/57)",
+    ...
+  }
+}
+```
+
+## Access Tier
+
+Requires **Advanced** tier (Developer, Scale, or Lifetime plan). Basic tier plans receive `403 ACCESS_DENIED`.
+
+## When to Use Location vs. Coordinates
+
+| Scenario | Recommended Endpoint |
+| --- | --- |
+| User types a city name | `/v2/charts` or `/v2/charts/simple` (uses geocoding) |
+| You already have lat/lng | `/v2/charts/coordinates` |
+| Building an AI agent | `/v2/charts/coordinates` (avoids geocode key dependency) |
+| Want to avoid Google Geocoding costs | `/v2/charts/coordinates` |
+
+## Validation Errors
+
+| Error Code | Description |
+| --- | --- |
+| `INVALID_LATITUDE` | Latitude is missing, not a number, or outside -90 to 90 |
+| `INVALID_LONGITUDE` | Longitude is missing, not a number, or outside -180 to 180 |
+| `TIMEZONE_LOOKUP_FAILED` | Could not determine timezone for the given coordinates |

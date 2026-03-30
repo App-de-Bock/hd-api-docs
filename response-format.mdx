@@ -1,0 +1,70 @@
+---
+title: "Response Format"
+description: "The standard response envelope used by all v2 endpoints."
+---
+
+All v2 endpoints return a consistent JSON envelope. This makes parsing predictable — every response has the same top-level structure regardless of success or failure.
+
+## Envelope Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `timestamp` | string | ISO 8601 timestamp of response generation |
+| `success` | boolean | `true` if the request succeeded, `false` on error |
+| `message` | string | Human-readable status message |
+| `errorCode` | string | Machine-readable [error code](/api-reference/error-codes) — empty string `""` on success |
+| `type` | string | Data type name of the object in `data` — empty string `""` on error |
+| `data` | object \| null | The response payload — `null` on error |
+
+## Success Response
+
+```json
+{
+  "timestamp": "2026-03-24T12:00:00.000Z",
+  "success": true,
+  "message": "Chart generated",
+  "errorCode": "",
+  "type": "ChartSimpleResult",
+  "data": {
+    "type": "Generator",
+    "profile": "6/2",
+    "gates": ["20", "34", "10", "57"],
+    "channelsShort": ["20-34", "10-57"],
+    "centers": ["G", "Sacral", "Spleen", "Throat"]
+  }
+}
+```
+
+## Error Response
+
+```json
+{
+  "timestamp": "2026-03-24T12:00:01.000Z",
+  "success": false,
+  "message": "Birthdate must be in YYYY-MM-DD format",
+  "errorCode": "INVALID_BIRTHDATE",
+  "type": "",
+  "data": null
+}
+```
+
+## Data Types
+
+The `type` field tells you what shape the `data` object has:
+
+| Type Value | Returned By | Description |
+| --- | --- | --- |
+| `ChartResult` | `/v2/charts`, `/v2/charts/coordinates` | Full chart with all properties (type, profile, channels, centers, strategy, authority, incarnation cross, activations, and more) |
+| `ChartSimpleResult` | `/v2/charts/simple` | Simplified chart (type, profile, gates, channels, centers) |
+
+## Parsing Guidelines
+
+1. **Check `success` first** — determines whether `data` is populated or `null`
+2. **Use `errorCode` for logic** — never parse `message` for error handling. Messages are human-readable and may change without notice.
+3. **`data` is always a single object** — v2 chart endpoints return one chart per request, never an array
+
+## v1 Response Format
+
+<Note>
+  v1 endpoints return the chart data directly as a flat JSON object — no envelope. Field names use `snake_case` (e.g., `channels_short`, `incarnation_cross`). See the [migration guide](/migration/v1-to-v2) for differences.
+</Note>

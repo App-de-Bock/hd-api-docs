@@ -1,0 +1,216 @@
+---
+title: "Using with AI Agents & LLMs"
+description: "Integrate the Human Design API with AI agents, LLMs, and no-code tools."
+---
+
+The Human Design API is designed for programmatic consumption: structured JSON, machine-readable error codes, a consistent response envelope, and a comprehensive OpenAPI spec. This makes it straightforward to integrate as a tool for AI agents and LLM workflows.
+
+## Why This API Works Well with AI
+
+- **Consistent structure** — every response has the same envelope (`success`, `errorCode`, `data`)
+- **Machine-readable errors** — agents can branch on `errorCode` without parsing text
+- **camelCase fields** — no special casing surprises for JSON parsers
+- **OpenAPI spec** — import directly into tool-building frameworks
+- **Deterministic** — same birth data always produces the same chart
+
+## llms.txt
+
+This documentation site serves an auto-generated `llms.txt` file:
+
+```
+https://docs.humandesignapi.nl/llms.txt
+```
+
+Feed this to your LLM for full API context. A more comprehensive `llms-full.txt` with the complete documentation content is also available at `/llms-full.txt`.
+
+## OpenAI Function Calling
+
+Define the API as a tool in the OpenAI function calling format:
+
+```json
+{
+  "type": "function",
+  "function": {
+    "name": "generate_human_design_chart",
+    "description": "Generate a Human Design personality chart from birth data. Returns type, profile, gates, channels, and centers.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "birthdate": {
+          "type": "string",
+          "description": "Date of birth in YYYY-MM-DD format"
+        },
+        "birthtime": {
+          "type": "string",
+          "description": "Time of birth in HH:MM 24-hour format"
+        },
+        "location": {
+          "type": "string",
+          "description": "Birth location as city and country"
+        }
+      },
+      "required": ["birthdate", "birthtime", "location"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+}
+```
+
+When the LLM invokes this tool, make the API call:
+
+<CodeGroup>
+```javascript JavaScript
+const response = await fetch("https://api.humandesignapi.nl/v2/charts/simple", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY",
+    "HD-Geocode-Key": "YOUR_GEOCODE_KEY",
+  },
+  body: JSON.stringify({ birthdate, birthtime, location }),
+});
+
+const result = await response.json();
+return result.success ? result.data : { error: result.errorCode };
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.humandesignapi.nl/v2/charts/simple",
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_API_KEY",
+        "HD-Geocode-Key": "YOUR_GEOCODE_KEY",
+    },
+    json={"birthdate": birthdate, "birthtime": birthtime, "location": location},
+)
+
+result = response.json()
+return result["data"] if result["success"] else {"error": result["errorCode"]}
+```
+</CodeGroup>
+
+## Claude Tool Use
+
+Define as an Anthropic tool:
+
+```json
+{
+  "name": "generate_human_design_chart",
+  "description": "Generate a Human Design personality chart from birth date, time, and location. Returns type, profile, gates, channels, and defined centers.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "birthdate": {
+        "type": "string",
+        "description": "Date of birth in YYYY-MM-DD format (e.g., 1990-01-15)"
+      },
+      "birthtime": {
+        "type": "string",
+        "description": "Time of birth in HH:MM 24-hour format (e.g., 14:30)"
+      },
+      "location": {
+        "type": "string",
+        "description": "Birth location as city and country (e.g., Amsterdam, The Netherlands)"
+      }
+    },
+    "required": ["birthdate", "birthtime", "location"]
+  }
+}
+```
+
+## Coordinates Endpoint for Agents
+
+If your agent already has latitude and longitude (e.g., from a prior geocoding step), use the [coordinates endpoint](/guides/coordinates-endpoint) to skip the geocoding key entirely:
+
+<CodeGroup>
+```javascript JavaScript
+const response = await fetch("https://api.humandesignapi.nl/v2/charts/coordinates", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY",
+  },
+  body: JSON.stringify({
+    birthdate: "1990-01-15",
+    birthtime: "14:30",
+    lat: 52.3676,
+    lng: 4.9041,
+  }),
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.humandesignapi.nl/v2/charts/coordinates",
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_API_KEY",
+    },
+    json={
+        "birthdate": "1990-01-15",
+        "birthtime": "14:30",
+        "lat": 52.3676,
+        "lng": 4.9041,
+    },
+)
+```
+</CodeGroup>
+
+This returns a full [`ChartResult`](/response-format#data-types) without requiring an `HD-Geocode-Key` header.
+
+## No-Code Platforms (Zapier, Make, n8n)
+
+Use an HTTP request module with these settings:
+
+| Setting | Value |
+| --- | --- |
+| **Method** | POST |
+| **URL** | `https://api.humandesignapi.nl/v2/charts/simple` |
+| **Headers** | `Authorization: Bearer YOUR_API_KEY`, `HD-Geocode-Key: YOUR_GEOCODE_KEY`, `Content-Type: application/json` |
+| **Body** | `{"birthdate": "YYYY-MM-DD", "birthtime": "HH:MM", "location": "City, Country"}` |
+
+Map dynamic fields from your workflow into the body. Parse `data` from the response for the chart result.
+
+## Recommended Endpoints for Agents
+
+| Use Case | Endpoint | Why |
+| --- | --- | --- |
+| Quick personality summary | `POST /v2/charts/simple` | Smaller response, all plan tiers |
+| Full chart reading | `POST /v2/charts` | All properties, advanced tier |
+| Agent with geocoding | `POST /v2/charts/coordinates` | No geocode key needed |
+
+## Error Handling for Agents
+
+Always check `success` and branch on `errorCode`:
+
+<CodeGroup>
+```javascript JavaScript
+if (!result.success) {
+  if (result.errorCode === "CREDITS_EXHAUSTED") {
+    return "Credit limit reached. Please try again later.";
+  } else if (result.errorCode === "INVALID_BIRTHDATE") {
+    return "Please provide the birth date in YYYY-MM-DD format.";
+  } else {
+    return `API error: ${result.errorCode}`;
+  }
+}
+```
+
+```python Python
+if not result["success"]:
+    if result["errorCode"] == "CREDITS_EXHAUSTED":
+        return "Credit limit reached. Please try again later."
+    elif result["errorCode"] == "INVALID_BIRTHDATE":
+        return "Please provide the birth date in YYYY-MM-DD format."
+    else:
+        return f"API error: {result['errorCode']}"
+```
+</CodeGroup>
+
+See the full [Error Codes](/api-reference/error-codes) reference.

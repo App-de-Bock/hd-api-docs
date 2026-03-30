@@ -1,0 +1,143 @@
+---
+title: "Migrating from v1 to v2"
+description: "Step-by-step guide to upgrade from API v1 to v2."
+---
+
+## Why Migrate
+
+- **Standard response envelope** — consistent structure for every response
+- **camelCase fields** — follows modern JSON conventions
+- **ISO 8601 dates** — `YYYY-MM-DD` instead of `DD-MMM-YY`
+- **Machine-readable error codes** — branch on `errorCode` instead of parsing messages
+- **New coordinates endpoint** — generate charts from lat/lng without a geocoding key
+
+## Breaking Changes
+
+<Warning>
+  The authentication header changed between v1 and v2. This is the most common migration issue.
+</Warning>
+
+| Aspect | v1 | v2 |
+| --- | --- | --- |
+| **Auth header** | `HD-Api-Key: YOUR_KEY` | `Authorization: Bearer YOUR_KEY` |
+| **Date format** | `DD-MMM-YY` (e.g., `15-Jan-90`) | `YYYY-MM-DD` (e.g., `1990-01-15`) |
+| **Base path** | `/v1/bodygraphs` | `/v2/charts` |
+| **Response** | Flat JSON object | Envelope with `data` field |
+| **Field naming** | `snake_case` | `camelCase` |
+| **Error handling** | HTTP status only | `errorCode` field in response body |
+
+### Renamed Fields
+
+| v1 (`snake_case`) | v2 (`camelCase`) |
+| --- | --- |
+| `channels_short` | `channelsShort` |
+| `channels_long` | `channelsLong` |
+| `incarnation_cross` | `incarnationCross` |
+| `not_self_theme` | `notSelfTheme` |
+| `north_node` | `northNode` |
+| `south_node` | `southNode` |
+
+### Renamed Endpoints
+
+| v1 | v2 |
+| --- | --- |
+| `POST /v1/bodygraphs` | `POST /v2/charts` |
+| `POST /v1/bodygraphs/simple` | `POST /v2/charts/simple` |
+| — | `POST /v2/charts/coordinates` (new) |
+
+## Step-by-Step Migration
+
+### 1. Update the base URL
+
+```diff
+- https://api.humandesignapi.nl/v1/bodygraphs
++ https://api.humandesignapi.nl/v2/charts
+```
+
+### 2. Change the authentication header
+
+```diff
+- HD-Api-Key: YOUR_API_KEY
++ Authorization: Bearer YOUR_API_KEY
+```
+
+The `HD-Geocode-Key` header remains the same for location-based endpoints.
+
+### 3. Update the date format
+
+```diff
+- "birthdate": "15-Jan-90"
++ "birthdate": "1990-01-15"
+```
+
+### 4. Update response parsing
+
+v2 wraps the chart data in a `data` field:
+
+```diff
+- const chart = await response.json();
+- console.log(chart.type);
++ const result = await response.json();
++ const chart = result.data;
++ console.log(chart.type);
+```
+
+Always check `result.success` before accessing `result.data`.
+
+### 5. Update field names to camelCase
+
+```diff
+- chart.channels_short
++ chart.channelsShort
+
+- chart.incarnation_cross
++ chart.incarnationCross
+
+- chart.not_self_theme
++ chart.notSelfTheme
+
+- chart.activations.design.north_node
++ chart.activations.design.northNode
+```
+
+## Complete Before and After
+
+<CodeGroup>
+```bash v1
+curl -X POST https://api.humandesignapi.nl/v1/bodygraphs/simple \
+  -H "Content-Type: application/json" \
+  -H "HD-Api-Key: YOUR_API_KEY" \
+  -H "HD-Geocode-Key: YOUR_GEOCODE_KEY" \
+  -d '{
+    "birthdate": "15-Jan-90",
+    "birthtime": "14:30",
+    "location": "Amsterdam, The Netherlands"
+  }'
+```
+
+```bash v2
+curl -X POST https://api.humandesignapi.nl/v2/charts/simple \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "HD-Geocode-Key: YOUR_GEOCODE_KEY" \
+  -d '{
+    "birthdate": "1990-01-15",
+    "birthtime": "14:30",
+    "location": "Amsterdam, The Netherlands"
+  }'
+```
+</CodeGroup>
+
+## FAQ
+
+### Do I need a new API key?
+
+No. The same API key works for both v1 and v2 — only the header name changes.
+
+### Is v1 being deprecated?
+
+v1 remains available with no planned sunset. However, new features (like the coordinates endpoint) are v2 only.
+
+### Can I use v1 and v2 simultaneously?
+
+Yes. Both versions share the same API key and credit pool. You can migrate endpoints incrementally.
