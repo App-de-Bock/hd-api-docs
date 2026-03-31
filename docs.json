@@ -71,8 +71,7 @@
           {
             "group": "Guides",
             "pages": [
-              "guides/agentic-tools",
-              "guides/rate-limiting"
+              "guides/agentic-tools"
             ]
           }
         ]
