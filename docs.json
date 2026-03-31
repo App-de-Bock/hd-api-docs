@@ -54,7 +54,7 @@
       }
     ]
   },
-  "openapi": ["/openapi/v2-routes.yaml", "/openapi/v1-routes.yaml"],
+  "openapi": ["/openapi/v1-routes.yaml"],
   "navigation": {
     "tabs": [
       {
@@ -65,23 +65,15 @@
             "pages": [
               "index",
               "quickstart",
-              "authentication",
-              "response-format"
+              "authentication"
             ]
           },
           {
             "group": "Guides",
             "pages": [
               "guides/plans-and-credits",
-              "guides/agentic-tools",
-              "guides/error-handling",
-              "guides/rate-limiting",
-              "guides/coordinates-endpoint"
+              "guides/rate-limiting"
             ]
-          },
-          {
-            "group": "Migration",
-            "pages": ["migration/v1-to-v2"]
           }
         ]
       },
@@ -89,17 +81,7 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "v2 Endpoints (Recommended)",
-            "openapi": "/openapi/v2-routes.yaml",
-            "pages": [
-              "api-reference/v2/overview",
-              "POST /charts",
-              "POST /charts/simple",
-              "POST /charts/coordinates"
-            ]
-          },
-          {
-            "group": "v1 Endpoints (Legacy)",
+            "group": "Endpoints",
             "openapi": "/openapi/v1-routes.yaml",
             "pages": [
               "api-reference/v1/overview",

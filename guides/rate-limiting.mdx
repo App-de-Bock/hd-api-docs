@@ -9,7 +9,7 @@ Rate limits protect the API from abuse and ensure fair usage for all consumers.
 
 | Scope                                    | Limit            | Key         |
 | ---------------------------------------- | ---------------- | ----------- |
-| **Authenticated API** (`/v1/*`, `/v2/*`) | 100 requests/min | Per API key |
+| **Authenticated API** | 100 requests/min | Per API key |
 
 ## Response When Limited
 
@@ -18,17 +18,6 @@ When you exceed a rate limit, the API returns:
 - **HTTP 429** Too Many Requests
 - **Error code**: `RATE_LIMIT_EXCEEDED`
 - **`Retry-After` header**: number of seconds to wait before retrying
-
-```json
-{
-  "timestamp": "2026-03-24T12:00:00.000Z",
-  "success": false,
-  "message": "Too many requests. Please try again later.",
-  "errorCode": "RATE_LIMIT_EXCEEDED",
-  "type": "",
-  "data": null
-}
-```
 
 ## Rate Limit Headers
 

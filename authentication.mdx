@@ -3,56 +3,32 @@ title: "Authentication"
 description: "How to authenticate with the Human Design API."
 ---
 
-## v2 Authentication (Recommended)
+## API Key
 
-All v2 endpoints require your API key as a Bearer token:
-
-```
-Authorization: Bearer YOUR_API_KEY
-```
-
-### Geocoding Key
-
-Location-based endpoints (`/v2/charts` and `/v2/charts/simple`) additionally require a Google Geocoding API key:
-
-```
-HD-Geocode-Key: YOUR_GEOCODE_KEY
-```
-
-This key is used to convert location strings (e.g., "Amsterdam, The Netherlands") into geographic coordinates. You can get one from the [Google Cloud Console](https://developers.google.com/maps/documentation/geocoding/get-api-key).
-
-<Tip>
-  The [coordinates endpoint](/guides/coordinates-endpoint) (`/v2/charts/coordinates`) does **not** need a geocoding key. If you already have latitude and longitude, use it to skip geocoding entirely.
-</Tip>
-
-### Full Request Example
-
-```bash
-curl -X POST https://api.humandesignapi.nl/v2/charts/simple \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "HD-Geocode-Key: YOUR_GEOCODE_KEY" \
-  -d '{
-    "birthdate": "1990-01-15",
-    "birthtime": "14:30",
-    "location": "Amsterdam, The Netherlands"
-  }'
-```
-
-## v1 Authentication (Legacy)
-
-<Warning>
-  v1 uses a different header format. New integrations should use v2. See the [migration guide](/migration/v1-to-v2).
-</Warning>
-
-v1 endpoints require two custom headers:
+All endpoints require your API key and a Google Geocoding key as custom headers:
 
 ```
 HD-Api-Key: YOUR_API_KEY
 HD-Geocode-Key: YOUR_GEOCODE_KEY
 ```
 
-The same API key works for both v1 and v2 — only the header name changes.
+### Geocoding Key
+
+The `HD-Geocode-Key` is used to convert location strings (e.g., "Amsterdam, The Netherlands") into geographic coordinates. You can get one from the [Google Cloud Console](https://developers.google.com/maps/documentation/geocoding/get-api-key).
+
+### Full Request Example
+
+```bash
+curl -X POST https://api.humandesignapi.nl/v1/bodygraphs/simple \
+  -H "Content-Type: application/json" \
+  -H "HD-Api-Key: YOUR_API_KEY" \
+  -H "HD-Geocode-Key: YOUR_GEOCODE_KEY" \
+  -d '{
+    "birthdate": "15-Jan-90",
+    "birthtime": "14:30",
+    "location": "Amsterdam, The Netherlands"
+  }'
+```
 
 ## Access Tiers
 
@@ -60,8 +36,8 @@ Your plan determines which endpoints you can access:
 
 | Tier | Endpoints | Plans |
 | --- | --- | --- |
-| **Basic** | `/v2/charts/simple`, `/v1/bodygraphs/simple` | Hobbyist |
-| **Advanced** | All endpoints (including `/v2/charts`, `/v2/charts/coordinates`, `/v1/bodygraphs`) | Developer, Scale, Lifetime |
+| **Basic** | `/v1/bodygraphs/simple` | Hobbyist |
+| **Advanced** | All endpoints (including `/v1/bodygraphs`) | Developer, Scale, Lifetime |
 
 Calling an endpoint above your tier returns `403` with error code `ACCESS_DENIED`.
 
@@ -79,9 +55,9 @@ Calling an endpoint above your tier returns `403` with error code `ACCESS_DENIED
 
 | Error Code | Status | Description |
 | --- | --- | --- |
-| `API_KEY_MISSING` | 401 | No `Authorization` header provided |
+| `API_KEY_MISSING` | 401 | No `HD-Api-Key` header provided |
 | `API_KEY_INVALID` | 401 | API key not found or deactivated |
-| `GEOCODE_KEY_MISSING` | 401 | No `HD-Geocode-Key` header on a location-based endpoint |
+| `GEOCODE_KEY_MISSING` | 401 | No `HD-Geocode-Key` header provided |
 | `GEOCODE_KEY_INVALID` | 400 | Google Geocoding API key is invalid or restricted |
 | `ACCESS_DENIED` | 403 | Your plan does not include this endpoint |
 | `ACCOUNT_INACTIVE` | 403 | Account has been deactivated |
