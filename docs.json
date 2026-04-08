@@ -62,17 +62,11 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "index",
-              "quickstart",
-              "authentication"
-            ]
+            "pages": ["index", "quickstart", "authentication"]
           },
           {
             "group": "Guides",
-            "pages": [
-              "guides/agentic-tools"
-            ]
+            "pages": ["guides/agentic-tools"]
           }
         ]
       },
@@ -86,12 +80,6 @@
               "api-reference/v1/overview",
               "POST /bodygraphs",
               "POST /bodygraphs/simple"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "api-reference/error-codes"
             ]
           }
         ]
