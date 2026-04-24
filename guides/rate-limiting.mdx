@@ -32,13 +32,13 @@ When you exceed a rate limit, the API returns:
 
 ## Rate Limit Headers
 
-Every response includes standard rate limit headers per the [IETF RateLimit header fields](https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/) specification:
+Every response includes standard rate limit headers per the [IETF RateLimit header fields](https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/09/) specification:
 
-| Header             | Description                                                       | Example                            |
-| ------------------ | ----------------------------------------------------------------- | ---------------------------------- |
-| `RateLimit-Policy` | Rate limit policy: max requests and window size in seconds        | `60;w=60`                          |
-| `RateLimit`        | Current state: limit, remaining requests, and seconds until reset | `limit=60, remaining=45, reset=30` |
-| `Retry-After`      | Seconds to wait before retrying (**only on 429 responses**)       | `30`                               |
+| Header             | Description                                                                 | Example                                        |
+| ------------------ | --------------------------------------------------------------------------- | ---------------------------------------------- |
+| `ratelimit-policy` | Policy name, quota (`q`), window in seconds (`w`), and partition key (`pk`) | `"100-in-1min"; q=100; w=60; pk=:ZGE1M2Y4...:` |
+| `ratelimit`        | Policy name, remaining requests (`r`), and seconds until reset (`t`)        | `"100-in-1min"; r=99; t=60`                    |
+| `Retry-After`      | Seconds to wait before retrying (**only on 429 responses**)                 | `30`                                           |
 
 ## Best Practices
 
