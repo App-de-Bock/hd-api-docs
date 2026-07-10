@@ -95,7 +95,9 @@
               "api-reference/v2/overview",
               "POST /charts",
               "POST /charts/simple",
-              "POST /charts/coordinates"
+              "POST /charts/coordinates",
+              "POST /visual-charts",
+              "POST /visual-charts/coordinates"
             ]
           },
           {

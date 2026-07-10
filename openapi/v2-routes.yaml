@@ -144,6 +144,21 @@ components:
           nullable: true
           description: The response payload (null on error)
 
+    VisualChartResponse:
+      allOf:
+        - $ref: "#/components/schemas/StandardResponse"
+        - type: object
+          properties:
+            svgRenderUrl:
+              type: string
+              format: uri
+              description: |
+                Bearer link to the rendered Visual Chart SVG. Carries a signed render
+                token (HMAC-SHA256) encoding only center/gate activations — no birth data,
+                no account id. Non-expiring; renders the caller's active template, or the
+                default theme when none is set.
+              example: "https://render.humandesignapi.nl/default.svg?t=eyJ..."
+
     ActivationSide:
       type: object
       description: Planetary gate.line activations for one side (design or personality)
@@ -359,6 +374,7 @@ components:
             - GEOCODE_LOCATION_NOT_FOUND
             - GEOCODE_KEY_INVALID
             - GEOCODE_KEY_MISSING
+            - GEOCODE_FAILED
             - GEOCODE_RATE_LIMITED
             - API_KEY_MISSING
             - API_KEY_INVALID
@@ -719,6 +735,258 @@ paths:
                 timestamp: "2026-03-24T12:00:01.000Z"
                 success: false
                 message: "Your plan does not include this endpoint"
+                errorCode: "ACCESS_DENIED"
+                type: ""
+                data: null
+        "429":
+          description: |
+            Rate limit exceeded.
+            Error code: `RATE_LIMIT_EXCEEDED`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "Too many requests. Please try again later."
+                errorCode: "RATE_LIMIT_EXCEEDED"
+                type: ""
+                data: null
+        "500":
+          description: |
+            Internal server error.
+            Possible error codes: `CHART_GENERATION_FAILED`, `EPHEMERIS_ERROR`,
+            `TIMEZONE_LOOKUP_FAILED`, `INTERNAL_ERROR`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "An unexpected error occurred"
+                errorCode: "INTERNAL_ERROR"
+                type: ""
+                data: null
+
+  /visual-charts:
+    post:
+      summary: Generate a chart with a rendered image
+      description: |
+        Generates a complete Human Design chart from birth date, time, and location,
+        and returns a `svgRenderUrl` for the rendered Visual Chart image alongside the
+        chart data. Requires the "advanced" access tier.
+      operationId: generateVisualChart
+      security:
+        - BearerAuth: []
+          GeocodeKeyAuth: []
+      tags:
+        - Visual Charts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChartInput"
+      responses:
+        "200":
+          description: Chart and render URL generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/VisualChartResponse"
+                  - type: object
+                    properties:
+                      type:
+                        example: "ChartResult"
+                      data:
+                        $ref: "#/components/schemas/ChartResult"
+        "400":
+          description: |
+            Validation or geocoding error.
+            Possible error codes: `INVALID_BIRTHDATE`, `INVALID_BIRTHTIME`, `INVALID_LOCATION`,
+            `GEOCODE_KEY_MISSING`, `GEOCODE_FAILED`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "HD-Geocode-Key header is required"
+                errorCode: "GEOCODE_KEY_MISSING"
+                type: ""
+                data: null
+        "401":
+          description: |
+            Authentication failed.
+            Possible error codes: `API_KEY_MISSING`, `API_KEY_INVALID`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "No Authorization header provided"
+                errorCode: "API_KEY_MISSING"
+                type: ""
+                data: null
+        "402":
+          description: |
+            Credits exhausted.
+            Error code: `CREDITS_EXHAUSTED`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "No credits remaining. Enable overage or upgrade your plan."
+                errorCode: "CREDITS_EXHAUSTED"
+                type: ""
+                data: null
+        "403":
+          description: |
+            Access denied — the "advanced" tier is required, or the account is inactive.
+            Possible error codes: `ACCESS_DENIED`, `ACCOUNT_INACTIVE`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "Advanced access tier required"
+                errorCode: "ACCESS_DENIED"
+                type: ""
+                data: null
+        "429":
+          description: |
+            Rate limit exceeded.
+            Possible error codes: `RATE_LIMIT_EXCEEDED`, `GEOCODE_RATE_LIMITED`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "Too many requests. Please try again later."
+                errorCode: "RATE_LIMIT_EXCEEDED"
+                type: ""
+                data: null
+        "500":
+          description: |
+            Internal server error.
+            Possible error codes: `CHART_GENERATION_FAILED`, `EPHEMERIS_ERROR`,
+            `TIMEZONE_LOOKUP_FAILED`, `INTERNAL_ERROR`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "An unexpected error occurred"
+                errorCode: "INTERNAL_ERROR"
+                type: ""
+                data: null
+
+  /visual-charts/coordinates:
+    post:
+      summary: Generate a chart with a rendered image from coordinates
+      description: |
+        Generates a complete Human Design chart from birth date, time, and geographic
+        coordinates, and returns a `svgRenderUrl` for the rendered Visual Chart image
+        alongside the chart data. No geocoding key required — timezone is resolved from
+        lat/lng directly. Requires the "advanced" access tier.
+      operationId: generateVisualChartFromCoordinates
+      security:
+        - BearerAuth: []
+      tags:
+        - Visual Charts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoordinatesInput"
+      responses:
+        "200":
+          description: Chart and render URL generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/VisualChartResponse"
+                  - type: object
+                    properties:
+                      type:
+                        example: "ChartResult"
+                      data:
+                        $ref: "#/components/schemas/ChartResult"
+        "400":
+          description: |
+            Validation error.
+            Possible error codes: `INVALID_BIRTHDATE`, `INVALID_BIRTHTIME`,
+            `INVALID_LATITUDE`, `INVALID_LONGITUDE`, `TIMEZONE_LOOKUP_FAILED`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "Latitude must be a number between -90 and 90"
+                errorCode: "INVALID_LATITUDE"
+                type: ""
+                data: null
+        "401":
+          description: |
+            Authentication failed.
+            Possible error codes: `API_KEY_MISSING`, `API_KEY_INVALID`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "No Authorization header provided"
+                errorCode: "API_KEY_MISSING"
+                type: ""
+                data: null
+        "402":
+          description: |
+            Credits exhausted.
+            Error code: `CREDITS_EXHAUSTED`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "No credits remaining. Enable overage or upgrade your plan."
+                errorCode: "CREDITS_EXHAUSTED"
+                type: ""
+                data: null
+        "403":
+          description: |
+            Access denied — the "advanced" tier is required, or the account is inactive.
+            Possible error codes: `ACCESS_DENIED`, `ACCOUNT_INACTIVE`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: "2026-03-24T12:00:01.000Z"
+                success: false
+                message: "Advanced access tier required"
                 errorCode: "ACCESS_DENIED"
                 type: ""
                 data: null
