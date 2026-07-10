@@ -1,0 +1,115 @@
+---
+title: "How to Render Your Own Chart"
+description: "Turn a Human Design chart into a themed SVG image with one extra field."
+---
+
+The Visual Chart endpoints (`POST /v2/visual-charts` and `POST /v2/visual-charts/coordinates`) return the same chart data as `/v2/charts`, plus an `svgRenderUrl` you can drop straight into an `<img>` tag.
+
+<Note>
+  **Public Beta.** Visual Charts are in Public Beta, open to all Developer plans and up. Behavior may change before GA. We'd love your feedback: [info@mail.humandesignapi.nl](mailto:info@mail.humandesignapi.nl).
+</Note>
+
+## Why Render a Visual Chart
+
+One request returns the full `ChartResult` you already get from `/v2/charts`, plus a ready-to-embed SVG.
+
+- **Fast, edge-rendered**: rendered at the edge for high performance and low latency
+- **Stateless and private**: no PII stored; HMAC-signed render tokens carry only chart activations
+- **Drop-in SVG**: an `svgRenderUrl` you style in an `<img>` tag or CSS `background-image`
+- **Your own branding**: create a branded chart style in the template editor
+
+## Request Format
+
+```bash
+curl -X POST https://api.humandesignapi.nl/v2/visual-charts \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "HD-Geocode-Key: YOUR_GEOCODE_KEY" \
+  -d '{
+    "birthdate": "1990-01-15",
+    "birthtime": "14:30",
+    "location": "Amsterdam, The Netherlands"
+  }'
+```
+
+The request body is identical to `POST /v2/charts`. See the [v2 request format](/api-reference/v2/overview#request-format) for the field table.
+
+Already have latitude and longitude? Use [`POST /v2/visual-charts/coordinates`](/api-reference/visual-charts/generate-a-chart-with-a-rendered-image-from-coordinates) instead. It takes `lat` and `lng` in place of `location`, and needs no geocoding key.
+
+## Response: the `svgRenderUrl` field
+
+`svgRenderUrl` is a **top-level sibling of `data`**, not a field inside it:
+
+```json
+{
+  "timestamp": "2026-03-24T12:00:00.000Z",
+  "success": true,
+  "message": "Chart generated",
+  "errorCode": "",
+  "type": "ChartResult",
+  "data": {
+    "type": "Generator",
+    "profile": "6/2",
+    "centers": ["G", "Sacral", "Spleen", "Throat"],
+    "strategy": "To Respond",
+    "authority": "Sacral",
+    ...
+  },
+  "svgRenderUrl": "https://render.humandesignapi.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ..."
+}
+```
+
+Everything under `data` is the same [`ChartResult`](/response-format#data-types) that `POST /v2/charts` returns.
+
+## Using the Render URL
+
+The URL serves `image/svg+xml`. No client-side JavaScript, no build step.
+
+### As an `<img>` tag
+
+```html
+<img src="https://render.humandesignapi.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ..." alt="My Human Design chart" />
+```
+
+### As a CSS background image
+
+```css
+.chart {
+  background-image: url("https://render.humandesignapi.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ...");
+}
+```
+
+The URL is stable and non-expiring, and the render is served with a long-lived immutable cache header, so it is safe to hotlink and safe to cache aggressively.
+
+Want a different look? Build a branded chart style in the [template editor](https://humandesignapi.nl/dashboard/visual-chart). Every Visual Chart you request afterwards renders with that style, and the URL shape stays the same.
+
+## Security & Data Handling
+
+- **Stateless.** All render state travels in the signed URL. Nothing about your request, the render token, or the rendered chart is stored server-side. The edge holds a 24 hour cache of your chart style only.
+- **No PII.** The signed token payload is exactly the chart's gate and center activations (`design`, `personality`, `centers`). It carries no name, birthdate, birthtime, location, coordinates, or account id. The template id in the path is an opaque UUID.
+- **HMAC-signed.** Tokens are signed with HMAC-SHA-256 and verified at the edge before anything renders. Any edit to the token invalidates the signature and the render is refused.
+- **Bearer link.** A render URL is a capability: it does not expire and cannot be revoked. Anyone holding the URL can view that chart's render. Treat it like a secret if the chart should stay private, and do not publish it where you would not publish the activations themselves.
+
+## Access Tier
+
+Visual Charts are available on Developer plans and up (Developer, Scale, and Lifetime). Plans below that receive `403 ACCESS_DENIED`. See [Plans & Credits](/guides/plans-and-credits).
+
+## API Reference
+
+- [`POST /v2/visual-charts`](/api-reference/visual-charts/generate-a-chart-with-a-rendered-image)
+- [`POST /v2/visual-charts/coordinates`](/api-reference/visual-charts/generate-a-chart-with-a-rendered-image-from-coordinates)
+
+## Validation Errors
+
+| Error Code | Description |
+| --- | --- |
+| `INVALID_BIRTHDATE` | Birthdate is missing or not in `YYYY-MM-DD` format |
+| `INVALID_BIRTHTIME` | Birthtime is missing or not in `HH:MM` format |
+| `INVALID_LOCATION` | Location is empty or shorter than 4 characters |
+| `INVALID_LATITUDE` | Latitude is missing, not a number, or outside -90 to 90 (`/coordinates` only) |
+| `INVALID_LONGITUDE` | Longitude is missing, not a number, or outside -180 to 180 (`/coordinates` only) |
+| `TIMEZONE_LOOKUP_FAILED` | Could not determine timezone for the given coordinates (`/coordinates` only) |
+| `GEOCODE_KEY_MISSING` | No `HD-Geocode-Key` header on `/v2/visual-charts`. Add the header, or use the coordinates variant |
+| `GEOCODE_FAILED` | The location could not be geocoded. Check the geocoding key and the spelling of the location |
+
+See [Error Codes](/api-reference/error-codes) for the full list, including authentication, billing, and rate limit errors.

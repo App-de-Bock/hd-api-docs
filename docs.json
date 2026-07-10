@@ -76,7 +76,8 @@
               "guides/agentic-tools",
               "guides/error-handling",
               "guides/rate-limiting",
-              "guides/coordinates-endpoint"
+              "guides/coordinates-endpoint",
+              "guides/render-your-own-chart"
             ]
           },
           {
