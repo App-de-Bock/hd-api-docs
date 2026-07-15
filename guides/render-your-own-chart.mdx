@@ -6,7 +6,9 @@ description: "Turn a Human Design chart into a themed SVG image with one extra f
 The Visual Chart endpoints (`POST /v2/visual-charts` and `POST /v2/visual-charts/coordinates`) return the same chart data as `/v2/charts`, plus an `svgRenderUrl` you can drop straight into an `<img>` tag.
 
 <Note>
-  **Public Beta.** Visual Charts are in Public Beta, open to all Developer plans and up. Behavior may change before GA. We'd love your feedback: [info@mail.humandesignapi.nl](mailto:info@mail.humandesignapi.nl).
+  **Public Beta.** Visual Charts are in Public Beta, open to all Developer plans
+  and up. Behavior may change before GA. We'd love your feedback:
+  [info@mail.humandesignapi.nl](mailto:info@mail.humandesignapi.nl).
 </Note>
 
 ## Why Render a Visual Chart
@@ -55,7 +57,7 @@ Already have latitude and longitude? Use [`POST /v2/visual-charts/coordinates`](
     "authority": "Sacral",
     ...
   },
-  "svgRenderUrl": "https://render.humandesignapi.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ..."
+  "svgRenderUrl": "https://render.appdebock.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ..."
 }
 ```
 
@@ -68,14 +70,17 @@ The URL serves `image/svg+xml`. No client-side JavaScript, no build step.
 ### As an `<img>` tag
 
 ```html
-<img src="https://render.humandesignapi.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ..." alt="My Human Design chart" />
+<img
+  src="https://render.appdebock.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ..."
+  alt="My Human Design chart"
+/>
 ```
 
 ### As a CSS background image
 
 ```css
 .chart {
-  background-image: url("https://render.humandesignapi.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ...");
+  background-image: url("https://render.appdebock.nl/1f0c8b3a-9d64-4a1e-b0f2-7c5ad2e91b83.svg?t=eyJ...");
 }
 ```
 
@@ -101,15 +106,15 @@ Visual Charts are available on Developer plans and up (Developer, Scale, and Lif
 
 ## Validation Errors
 
-| Error Code | Description |
-| --- | --- |
-| `INVALID_BIRTHDATE` | Birthdate is missing or not in `YYYY-MM-DD` format |
-| `INVALID_BIRTHTIME` | Birthtime is missing or not in `HH:MM` format |
-| `INVALID_LOCATION` | Location is empty or shorter than 4 characters |
-| `INVALID_LATITUDE` | Latitude is missing, not a number, or outside -90 to 90 (`/coordinates` only) |
-| `INVALID_LONGITUDE` | Longitude is missing, not a number, or outside -180 to 180 (`/coordinates` only) |
-| `TIMEZONE_LOOKUP_FAILED` | Could not determine timezone for the given coordinates (`/coordinates` only) |
-| `GEOCODE_KEY_MISSING` | No `HD-Geocode-Key` header on `/v2/visual-charts`. Add the header, or use the coordinates variant |
-| `GEOCODE_FAILED` | The location could not be geocoded. Check the geocoding key and the spelling of the location |
+| Error Code               | Description                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------- |
+| `INVALID_BIRTHDATE`      | Birthdate is missing or not in `YYYY-MM-DD` format                                                |
+| `INVALID_BIRTHTIME`      | Birthtime is missing or not in `HH:MM` format                                                     |
+| `INVALID_LOCATION`       | Location is empty or shorter than 4 characters                                                    |
+| `INVALID_LATITUDE`       | Latitude is missing, not a number, or outside -90 to 90 (`/coordinates` only)                     |
+| `INVALID_LONGITUDE`      | Longitude is missing, not a number, or outside -180 to 180 (`/coordinates` only)                  |
+| `TIMEZONE_LOOKUP_FAILED` | Could not determine timezone for the given coordinates (`/coordinates` only)                      |
+| `GEOCODE_KEY_MISSING`    | No `HD-Geocode-Key` header on `/v2/visual-charts`. Add the header, or use the coordinates variant |
+| `GEOCODE_FAILED`         | The location could not be geocoded. Check the geocoding key and the spelling of the location      |
 
 See [Error Codes](/api-reference/error-codes) for the full list, including authentication, billing, and rate limit errors.

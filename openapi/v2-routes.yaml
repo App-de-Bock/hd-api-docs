@@ -157,7 +157,7 @@ components:
                 token (HMAC-SHA256) encoding only center/gate activations — no birth data,
                 no account id. Non-expiring; renders the caller's active template, or the
                 default theme when none is set.
-              example: "https://render.humandesignapi.nl/default.svg?t=eyJ..."
+              example: "https://render.appdebock.nl/default.svg?t=eyJ..."
 
     ActivationSide:
       type: object
@@ -292,7 +292,11 @@ components:
           items:
             type: string
           description: Full channel names with gate numbers
-          example: ["The Channel of Charisma (20-34)", "The Channel of the Brainwave (57-10)"]
+          example:
+            [
+              "The Channel of Charisma (20-34)",
+              "The Channel of the Brainwave (57-10)",
+            ]
         gates:
           type: array
           items:
