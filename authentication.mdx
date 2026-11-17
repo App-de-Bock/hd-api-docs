@@ -52,18 +52,19 @@ HD-Api-Key: YOUR_API_KEY
 HD-Geocode-Key: YOUR_GEOCODE_KEY
 ```
 
-The same API key works for both v1 and v2 — only the header name changes.
+The same API key works for both v1 and v2; only the header name changes. Free test keys work on v2 only.
 
-## Access Tiers
+## Endpoint Access
 
 Your plan determines which endpoints you can access:
 
-| Tier | Endpoints | Plans |
-| --- | --- | --- |
-| **Basic** | `/v2/charts/simple`, `/v1/bodygraphs/simple` | Hobbyist |
-| **Advanced** | All endpoints (including `/v2/charts`, `/v2/charts/coordinates`, `/v1/bodygraphs`) | Developer, Scale, Lifetime |
+| Plan | Endpoints |
+| --- | --- |
+| **Monthly plan or Lifetime License** | All endpoints, including `/v2/charts`, `/v2/charts/coordinates`, `/v2/visual-charts` and `/v1/bodygraphs` |
+| **Free test key** | All v2 endpoints. v1 endpoints return `403` with `ACCESS_DENIED` |
+| **Hobbyist** (no longer sold) | `/v2/charts/simple`, `/v1/bodygraphs/simple` |
 
-Calling an endpoint above your tier returns `403` with error code `ACCESS_DENIED`.
+Calling an endpoint your plan does not include returns `403` with error code `ACCESS_DENIED`. See [Plans & API Calls](/guides/plans-and-credits) for prices and allocations.
 
 ## API Key Security
 
@@ -73,7 +74,7 @@ Calling an endpoint above your tier returns `403` with error code `ACCESS_DENIED
 
 - Your API key is available in the [dashboard](https://humandesignapi.nl/dashboard)
 - If your key is compromised, rotate it immediately from the dashboard. The old key is **invalidated instantly**
-- Each API call deducts one credit from your plan's allocation
+- Each request counts as one API call against your plan's monthly allocation
 
 ## Authentication Errors
 

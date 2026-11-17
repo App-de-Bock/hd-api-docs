@@ -1,52 +1,88 @@
 ---
-title: "Plans & Credits"
-description: "Understand API plans, credit allocation, and usage tracking."
+title: "Plans & API Calls"
+description: "Prices, monthly API calls, rollover and extra calls for the Lifetime License, the Monthly plan and the free test key."
 ---
 
-Every API call costs 1 credit. Your plan determines how many credits you get each month and which endpoints you can access.
+{/*
+  Hand-maintained copy of the backend plan config. When prices, API call
+  allocations, rollover caps, overage rates or launch dates change, update
+  this page to match:
+  - human-design-api `src/config/stripe-plans.ts` (plans, prices, cutoff)
+  - human-design-api `src/test-key/test-key-service.ts` (free test key)
+*/}
+
+Every request to the API counts as one API call, on every endpoint. Your plan sets how many API calls you get each month.
 
 ## Plans
 
-| Plan          | Access Tier | Monthly Credits | Annual Credits/mo | Rollover Cap | Overage Rate (per 1,000) | Monthly Price | Annual Price | Lifetime Price |
-| ------------- | ----------- | --------------- | ----------------- | ------------ | ------------------------ | ------------- | ------------ | -------------- |
-| **Hobbyist**  | Basic       | 5,000           | 6,000             | 10,000       | &euro;2.00               | &euro;22.50   | &euro;225    | —              |
-| **Developer** | Advanced    | 10,000          | 12,000            | 20,000       | &euro;2.00               | &euro;35      | &euro;350    | —              |
-| **Scale**     | Advanced    | 50,000          | 60,000            | 100,000      | &euro;1.00               | &euro;47.50   | &euro;475    | —              |
-| **Lifetime**  | Advanced    | 50,000          | —                 | 100,000      | &euro;1.00               | —             | —            | &euro;1,200    |
+| | Free test key | Lifetime License | Monthly |
+| --- | --- | --- | --- |
+| **Price (EUR)** | Free | &euro;249 one-time until 31 Dec 2026, then &euro;299 | &euro;35 per month |
+| **Price (USD)** | Free | $275 one-time until 31 Dec 2026, then $330 | $40 per month |
+| **API calls** | 25 in total | 3,000 per month | 10,000 per month |
+| **Valid for** | 30 days from claiming | Lifetime of v2 | While subscribed |
+| **Unused calls roll over** | No | No | Yes, up to a balance of 20,000 |
+| **Extra calls (per 1,000)** | Not available | Optional, &euro;2 / $2.25 | Optional, &euro;2 / $2.25 |
+| **Full chart data and Visual Charts** | Yes | Yes | Yes |
+| **API versions** | v2 only | v1 and v2 | v1 and v2 |
+| **Card needed** | No | Yes | Yes |
 
-## Access Tiers
+The Lifetime License launch price of &euro;249 / $275 ends at midnight (Amsterdam time) on 31 December 2026. From 1 January 2027 the Lifetime License costs &euro;299 / $330.
 
-| Tier         | Available Endpoints                                                               |
-| ------------ | --------------------------------------------------------------------------------- |
-| **Basic**    | `/v2/charts/simple`, `/v1/bodygraphs/simple`                                      |
-| **Advanced** | All endpoints, including `/v2/charts`, `/v2/charts/coordinates`, `/v1/bodygraphs` |
+Prices are shown in EUR in Europe and in USD everywhere else. You pay in the currency shown at checkout.
 
-## Credit System
+Get a plan or claim your free test key on the [pricing page](https://humandesignapi.nl/pricing).
+
+## Free Test Key
+
+The free test key lets you try the full v2 API without a card:
+
+- 25 API calls in total, valid for 30 days from the moment you claim it
+- Claimed once per account from the [dashboard](https://humandesignapi.nl/dashboard)
+- Works on the v2 API only. Calling a v1 endpoint returns `403` with error code [`ACCESS_DENIED`](/api-reference/error-codes#authorization-errors)
+- When all 25 API calls are used, the API returns `402` with [`TEST_KEY_EXHAUSTED`](/api-reference/error-codes#billing-errors)
+- After 30 days, the API returns `402` with [`TEST_KEY_EXPIRED`](/api-reference/error-codes#billing-errors)
+- Unused test calls end when you buy the Lifetime License or the Monthly plan
+
+## API Calls
 
 ### Monthly Allocation
 
-Credits reset monthly. Annual plans receive 20% more credits per month than the equivalent monthly plan.
+Your API calls reset every month: 3,000 on the Lifetime License, 10,000 on the Monthly plan.
 
 ### Rollover
 
-Unused credits roll over to the next month, up to your plan's rollover cap. Any excess beyond the cap is lost at reset.
+On the Monthly plan, unused API calls roll over to the next month, up to a total balance of 20,000. Anything beyond that is lost at reset. The Lifetime License has no rollover.
 
-**Example**: Developer plan (10,000/month, 20,000 cap). You use 7,000 credits in March, leaving 3,000 unused. In April you start with 13,000 credits (10,000 new + 3,000 rolled over). If you had 15,000 unused, only 10,000 would roll over (capped at 20,000 total).
+**Example**: on the Monthly plan you use 7,000 API calls in March, leaving 3,000 unused. In April you start with 13,000 API calls (10,000 new + 3,000 rolled over). If you had 15,000 unused, you would start April with 20,000, the maximum balance.
 
-### Overage
+### Extra Calls
 
-Overage is **disabled by default**. When enabled:
+Extra calls are **off by default**. When you turn them on:
 
-- Requests beyond your credit limit succeed and are billed at your plan's overage rate per 1,000 API calls
-- Overage charges appear on your next invoice via Stripe
+- API calls beyond your monthly allocation keep working and are billed per 1,000 API calls: &euro;2 / $2.25 on the Lifetime License and the Monthly plan
+- You set a monthly spend limit. At that limit the API returns `402` with [`SPENDING_LIMIT_REACHED`](/api-reference/error-codes#billing-errors)
+- Extra calls appear on your next monthly invoice
 
-When disabled, requests beyond your credit limit return `402` with error code [`CREDITS_EXHAUSTED`](/api-reference/error-codes#billing-errors).
+When extra calls are off, API calls beyond your allocation return `402` with error code [`CREDITS_EXHAUSTED`](/api-reference/error-codes#billing-errors) until your next month starts.
 
-You can enable or disable overage from your [account settings](https://humandesignapi.nl/dashboard/account).
+You can turn extra calls on or off in your [account settings](https://humandesignapi.nl/dashboard/settings).
 
 ### Cancellation
 
-When you cancel a subscription:
+When you cancel the Monthly plan:
 
-- Your plan remains active until the end of the current billing period
-- At the end of the period, credits expire to 0 and no new credits are allocated
+- Your plan stays active until the end of the current billing period
+- At the end of the period, your remaining API calls expire and no new API calls are added
+
+## Retired Plans
+
+These plans are no longer sold to new customers. Existing subscribers keep renewing on them unchanged:
+
+| Plan | API calls per month | Rollover up to | Extra calls (per 1,000) | Price |
+| --- | --- | --- | --- | --- |
+| **Hobbyist** | 5,000 (6,000 on annual billing) | 10,000 | &euro;2 | &euro;22.50 per month, &euro;225 per year |
+| **Scale** | 50,000 (60,000 on annual billing) | 100,000 | &euro;1 | &euro;47.50 per month, &euro;475 per year |
+| **Monthly, annual billing** | 12,000 | 20,000 | &euro;2 | &euro;350 per year |
+
+The earlier &euro;1,200 one-time lifetime price is also no longer sold. Hobbyist covers the simplified chart endpoints only (`/v2/charts/simple`, `/v1/bodygraphs/simple`).

@@ -26,14 +26,20 @@ Always use the `errorCode` field for programmatic error handling. The `message` 
 
 | Error Code | HTTP Status | Description | Action |
 | --- | --- | --- | --- |
-| `ACCESS_DENIED` | 403 | Your plan does not include this endpoint | Upgrade to a plan with the required [access tier](/authentication#access-tiers) |
+| `ACCESS_DENIED` | 403 | Your plan does not include this endpoint | Move to the Monthly plan or the Lifetime License, which include [every endpoint](/authentication#endpoint-access) |
+| `ACCESS_DENIED` | 403 | A free test key called a v1 endpoint. Message: "Test keys work on the v2 API." | Call the [v2 endpoint](/migration/v1-to-v2) instead |
 | `ACCOUNT_INACTIVE` | 403 | Account has been deactivated | Contact [support](mailto:info@mail.humandesignapi.nl) |
 
 ## Billing Errors
 
 | Error Code | HTTP Status | Description | Action |
 | --- | --- | --- | --- |
-| `CREDITS_EXHAUSTED` | 402 | No credits remaining and overage is disabled | Wait for monthly reset, enable overage, or upgrade your plan |
+| `CREDITS_EXHAUSTED` | 402 | All API calls for this month are used and extra calls are off | Wait for your next month to start, or turn on [extra calls](/guides/plans-and-credits#extra-calls) |
+| `SPENDING_LIMIT_REACHED` | 402 | Extra calls reached the monthly spend limit you set | Raise your spend limit in the dashboard, or wait for your next month to start |
+| `SUBSCRIPTION_PAST_DUE` | 402 | The last payment failed | Update your payment method in the dashboard |
+| `SUBSCRIPTION_INACTIVE` | 402 | No active plan and no free test key | Get the Lifetime License or the Monthly plan. The message includes the pricing URL |
+| `TEST_KEY_EXHAUSTED` | 402 | The free test key has used all of its [API calls](/guides/plans-and-credits#free-test-key) | Get the Lifetime License or the Monthly plan. The message includes the pricing URL |
+| `TEST_KEY_EXPIRED` | 402 | The free test key is past its [validity period](/guides/plans-and-credits#free-test-key) | Get the Lifetime License or the Monthly plan. The message includes the pricing URL |
 
 ## Validation Errors
 
