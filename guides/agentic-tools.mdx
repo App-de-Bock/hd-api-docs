@@ -182,7 +182,7 @@ Map dynamic fields from your workflow into the body. Parse `data` from the respo
 | Use Case | Endpoint | Why |
 | --- | --- | --- |
 | Quick personality summary | `POST /v2/charts/simple` | Smaller response, all plan tiers |
-| Full chart reading | `POST /v2/charts` | All properties, advanced tier |
+| Full chart reading | `POST /v2/charts` | All properties, Monthly plan or Lifetime License |
 | Agent with geocoding | `POST /v2/charts/coordinates` | No geocode key needed |
 
 ## Error Handling for Agents
@@ -193,7 +193,7 @@ Always check `success` and branch on `errorCode`:
 ```javascript JavaScript
 if (!result.success) {
   if (result.errorCode === "CREDITS_EXHAUSTED") {
-    return "Credit limit reached. Please try again later.";
+    return "API call limit reached. Please try again later.";
   } else if (result.errorCode === "INVALID_BIRTHDATE") {
     return "Please provide the birth date in YYYY-MM-DD format.";
   } else {
@@ -205,7 +205,7 @@ if (!result.success) {
 ```python Python
 if not result["success"]:
     if result["errorCode"] == "CREDITS_EXHAUSTED":
-        return "Credit limit reached. Please try again later."
+        return "API call limit reached. Please try again later."
     elif result["errorCode"] == "INVALID_BIRTHDATE":
         return "Please provide the birth date in YYYY-MM-DD format."
     else:
