@@ -383,6 +383,11 @@ components:
             - API_KEY_MISSING
             - API_KEY_INVALID
             - CREDITS_EXHAUSTED
+            - SPENDING_LIMIT_REACHED
+            - SUBSCRIPTION_PAST_DUE
+            - SUBSCRIPTION_INACTIVE
+            - TEST_KEY_EXHAUSTED
+            - TEST_KEY_EXPIRED
             - ACCESS_DENIED
             - ACCOUNT_INACTIVE
             - RATE_LIMIT_EXCEEDED
@@ -464,8 +469,13 @@ paths:
                 data: null
         "402":
           description: |
-            Credits exhausted.
-            Error code: `CREDITS_EXHAUSTED`
+            Payment required. Possible error codes:
+            `CREDITS_EXHAUSTED` (all API calls for this month are used and extra calls are off),
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan and no free test key),
+            `TEST_KEY_EXHAUSTED` (the free test key used all of its API calls),
+            `TEST_KEY_EXPIRED` (the free test key is past its validity period).
+            The message of the test-key and no-plan codes includes the pricing URL.
           content:
             application/json:
               schema:
@@ -473,7 +483,7 @@ paths:
               example:
                 timestamp: "2026-03-24T12:00:01.000Z"
                 success: false
-                message: "No credits remaining. Enable overage or upgrade your plan."
+                message: "Monthly API call limit reached. Turn on extra calls in your dashboard or wait for the next month."
                 errorCode: "CREDITS_EXHAUSTED"
                 type: ""
                 data: null
@@ -589,8 +599,13 @@ paths:
                 data: null
         "402":
           description: |
-            Credits exhausted.
-            Error code: `CREDITS_EXHAUSTED`
+            Payment required. Possible error codes:
+            `CREDITS_EXHAUSTED` (all API calls for this month are used and extra calls are off),
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan and no free test key),
+            `TEST_KEY_EXHAUSTED` (the free test key used all of its API calls),
+            `TEST_KEY_EXPIRED` (the free test key is past its validity period).
+            The message of the test-key and no-plan codes includes the pricing URL.
           content:
             application/json:
               schema:
@@ -598,7 +613,7 @@ paths:
               example:
                 timestamp: "2026-03-24T12:00:01.000Z"
                 success: false
-                message: "No credits remaining. Enable overage or upgrade your plan."
+                message: "Monthly API call limit reached. Turn on extra calls in your dashboard or wait for the next month."
                 errorCode: "CREDITS_EXHAUSTED"
                 type: ""
                 data: null
@@ -714,8 +729,13 @@ paths:
                 data: null
         "402":
           description: |
-            Credits exhausted.
-            Error code: `CREDITS_EXHAUSTED`
+            Payment required. Possible error codes:
+            `CREDITS_EXHAUSTED` (all API calls for this month are used and extra calls are off),
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan and no free test key),
+            `TEST_KEY_EXHAUSTED` (the free test key used all of its API calls),
+            `TEST_KEY_EXPIRED` (the free test key is past its validity period).
+            The message of the test-key and no-plan codes includes the pricing URL.
           content:
             application/json:
               schema:
@@ -723,7 +743,7 @@ paths:
               example:
                 timestamp: "2026-03-24T12:00:01.000Z"
                 success: false
-                message: "No credits remaining. Enable overage or upgrade your plan."
+                message: "Monthly API call limit reached. Turn on extra calls in your dashboard or wait for the next month."
                 errorCode: "CREDITS_EXHAUSTED"
                 type: ""
                 data: null
@@ -840,8 +860,13 @@ paths:
                 data: null
         "402":
           description: |
-            Credits exhausted.
-            Error code: `CREDITS_EXHAUSTED`
+            Payment required. Possible error codes:
+            `CREDITS_EXHAUSTED` (all API calls for this month are used and extra calls are off),
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan and no free test key),
+            `TEST_KEY_EXHAUSTED` (the free test key used all of its API calls),
+            `TEST_KEY_EXPIRED` (the free test key is past its validity period).
+            The message of the test-key and no-plan codes includes the pricing URL.
           content:
             application/json:
               schema:
@@ -849,7 +874,7 @@ paths:
               example:
                 timestamp: "2026-03-24T12:00:01.000Z"
                 success: false
-                message: "No credits remaining. Enable overage or upgrade your plan."
+                message: "Monthly API call limit reached. Turn on extra calls in your dashboard or wait for the next month."
                 errorCode: "CREDITS_EXHAUSTED"
                 type: ""
                 data: null
@@ -966,8 +991,13 @@ paths:
                 data: null
         "402":
           description: |
-            Credits exhausted.
-            Error code: `CREDITS_EXHAUSTED`
+            Payment required. Possible error codes:
+            `CREDITS_EXHAUSTED` (all API calls for this month are used and extra calls are off),
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan and no free test key),
+            `TEST_KEY_EXHAUSTED` (the free test key used all of its API calls),
+            `TEST_KEY_EXPIRED` (the free test key is past its validity period).
+            The message of the test-key and no-plan codes includes the pricing URL.
           content:
             application/json:
               schema:
@@ -975,7 +1005,7 @@ paths:
               example:
                 timestamp: "2026-03-24T12:00:01.000Z"
                 success: false
-                message: "No credits remaining. Enable overage or upgrade your plan."
+                message: "Monthly API call limit reached. Turn on extra calls in your dashboard or wait for the next month."
                 errorCode: "CREDITS_EXHAUSTED"
                 type: ""
                 data: null

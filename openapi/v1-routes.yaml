@@ -334,8 +334,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/StandardErrorResponse"
+        "402":
+          description: |
+            Payment required. Possible error codes: `CREDITS_EXHAUSTED`,
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardErrorResponse"
         "403":
-          description: Access denied — user does not have access to this feature
+          description: Access denied. The user does not have access to this feature, or the key is a free test key (test keys work on the v2 API only).
           content:
             application/json:
               schema:
@@ -388,8 +397,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/StandardErrorResponse"
+        "402":
+          description: |
+            Payment required. Possible error codes: `CREDITS_EXHAUSTED`,
+            `SPENDING_LIMIT_REACHED`, `SUBSCRIPTION_PAST_DUE`,
+            `SUBSCRIPTION_INACTIVE` (no active plan).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardErrorResponse"
         "403":
-          description: Access denied — user does not have access to this feature
+          description: Access denied. The user does not have access to this feature, or the key is a free test key (test keys work on the v2 API only).
           content:
             application/json:
               schema:

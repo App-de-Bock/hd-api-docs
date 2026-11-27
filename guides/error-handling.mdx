@@ -39,7 +39,11 @@ const result = await response.json();
 if (!result.success) {
   switch (result.errorCode) {
     case "CREDITS_EXHAUSTED":
-      // Prompt user to upgrade or wait for reset
+      // API calls used up: wait for the monthly reset or turn on extra calls
+      break;
+    case "TEST_KEY_EXHAUSTED":
+    case "TEST_KEY_EXPIRED":
+      // Free test key used up or expired: get a plan to keep going
       break;
     case "RATE_LIMIT_EXCEEDED":
       // Wait and retry after Retry-After header
@@ -71,7 +75,10 @@ result = response.json()
 if not result["success"]:
     error_code = result["errorCode"]
     if error_code == "CREDITS_EXHAUSTED":
-        # Prompt user to upgrade or wait for reset
+        # API calls used up: wait for the monthly reset or turn on extra calls
+        pass
+    elif error_code in ("TEST_KEY_EXHAUSTED", "TEST_KEY_EXPIRED"):
+        # Free test key used up or expired: get a plan to keep going
         pass
     elif error_code == "RATE_LIMIT_EXCEEDED":
         retry_after = response.headers.get("Retry-After", 60)
@@ -88,8 +95,8 @@ if not result["success"]:
 | --- | --- | --- |
 | **400** | Validation error (bad input) | No — fix the request |
 | **401** | Authentication failure | No — check your API key |
-| **402** | Credits exhausted | No — wait for reset, enable overage, or upgrade |
-| **403** | Access denied (wrong tier or inactive) | No — upgrade plan or contact support |
+| **402** | Payment required (API calls used up, spend limit reached, payment failed, or free test key used up or expired) | No. See the [billing errors](/api-reference/error-codes#billing-errors) |
+| **403** | Access denied (endpoint not in your plan, free test key on v1, or inactive account) | No. Change plan, use v2, or contact support |
 | **429** | Rate limit exceeded | Yes — wait for `Retry-After` seconds |
 | **500** | Server error | Yes — retry with backoff, contact support if persistent |
 

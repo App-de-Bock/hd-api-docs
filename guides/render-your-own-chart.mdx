@@ -6,8 +6,8 @@ description: "Turn a Human Design chart into a themed SVG image with one extra f
 The Visual Chart endpoints (`POST /v2/visual-charts` and `POST /v2/visual-charts/coordinates`) return the same chart data as `/v2/charts`, plus an `svgRenderUrl` you can drop straight into an `<img>` tag.
 
 <Note>
-  **Public Beta.** Visual Charts are in Public Beta, open to all Developer plans
-  and up. Behavior may change before GA. We'd love your feedback:
+  **Public Beta.** Visual Charts are in Public Beta, included in the Monthly
+  plan, the Lifetime License and the free test key. Behavior may change before GA. We'd love your feedback:
   [info@appdebock.nl](mailto:info@appdebock.nl).
 </Note>
 
@@ -95,9 +95,9 @@ Want a different look? Build a branded chart style in the [template editor](http
 - **HMAC-signed.** Tokens are signed with HMAC-SHA-256 and verified at the edge before anything renders. Any edit to the token invalidates the signature and the render is refused.
 - **Bearer link.** A render URL is a capability: it does not expire and cannot be revoked. Anyone holding the URL can view that chart's render. Treat it like a secret if the chart should stay private, and do not publish it where you would not publish the activations themselves.
 
-## Access Tier
+## Access
 
-Visual Charts are available on Developer plans and up (Developer, Scale, and Lifetime). Plans below that receive `403 ACCESS_DENIED`. See [Plans & Credits](/guides/plans-and-credits).
+Visual Charts are included in the Monthly plan, the Lifetime License and the free test key. Plans without access receive `403 ACCESS_DENIED`. See [Plans & API Calls](/guides/plans-and-credits).
 
 ## API Reference
 
